@@ -13,6 +13,7 @@
 		852BC1CF226BDA0D004EEFA8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 852BC1CE226BDA0D004EEFA8 /* Assets.xcassets */; };
 		852BC1D2226BDA0D004EEFA8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 852BC1D0226BDA0D004EEFA8 /* LaunchScreen.storyboard */; };
 		852BC1DD226BDA0D004EEFA8 /* haudioplayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852BC1DC226BDA0D004EEFA8 /* haudioplayerTests.swift */; };
+		852BC1E9226BDBFE004EEFA8 /* StreamReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852BC1E8226BDBFE004EEFA8 /* StreamReader.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +37,7 @@
 		852BC1D8226BDA0D004EEFA8 /* haudioplayerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = haudioplayerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		852BC1DC226BDA0D004EEFA8 /* haudioplayerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = haudioplayerTests.swift; sourceTree = "<group>"; };
 		852BC1DE226BDA0E004EEFA8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		852BC1E8226BDBFE004EEFA8 /* StreamReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamReader.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,6 +85,7 @@
 				852BC1CE226BDA0D004EEFA8 /* Assets.xcassets */,
 				852BC1D0226BDA0D004EEFA8 /* LaunchScreen.storyboard */,
 				852BC1D3226BDA0D004EEFA8 /* Info.plist */,
+				852BC1E8226BDBFE004EEFA8 /* StreamReader.swift */,
 			);
 			path = haudioplayer;
 			sourceTree = "<group>";
@@ -146,6 +149,11 @@
 				TargetAttributes = {
 					852BC1C3226BDA0C004EEFA8 = {
 						CreatedOnToolsVersion = 10.1;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+						};
 					};
 					852BC1D7226BDA0D004EEFA8 = {
 						CreatedOnToolsVersion = 10.1;
@@ -197,6 +205,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				852BC1E9226BDBFE004EEFA8 /* StreamReader.swift in Sources */,
 				852BC1CA226BDA0C004EEFA8 /* ViewController.swift in Sources */,
 				852BC1C8226BDA0C004EEFA8 /* AppDelegate.swift in Sources */,
 			);
@@ -360,7 +369,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = AGHA3VWM5L;
 				INFOPLIST_FILE = haudioplayer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -369,6 +378,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.historic.haudioplayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = dev;
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -378,8 +388,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = AGHA3VWM5L;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = haudioplayer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -387,6 +397,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.historic.haudioplayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

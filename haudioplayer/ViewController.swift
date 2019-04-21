@@ -10,9 +10,20 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    let audioList = [
+        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"
+    ]
+    
+    var reader = RemoteStreamReader()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        guard let url = URL(string: audioList[0]) else { return }
+        reader.startRead(from: url)
     }
 
 
