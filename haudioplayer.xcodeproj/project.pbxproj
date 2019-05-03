@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		193CA809227C573C00D7A409 /* AudioFileStreamCallback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 193CA808227C573C00D7A409 /* AudioFileStreamCallback.swift */; };
+		19774AAD227C2947009935ED /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19774AAC227C2947009935ED /* AudioManager.swift */; };
 		852BC1C8226BDA0C004EEFA8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852BC1C7226BDA0C004EEFA8 /* AppDelegate.swift */; };
 		852BC1CA226BDA0C004EEFA8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852BC1C9226BDA0C004EEFA8 /* ViewController.swift */; };
 		852BC1CD226BDA0C004EEFA8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 852BC1CB226BDA0C004EEFA8 /* Main.storyboard */; };
@@ -27,6 +29,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		193CA808227C573C00D7A409 /* AudioFileStreamCallback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioFileStreamCallback.swift; sourceTree = "<group>"; };
+		19774AAC227C2947009935ED /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 		852BC1C4226BDA0C004EEFA8 /* haudioplayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = haudioplayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		852BC1C7226BDA0C004EEFA8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		852BC1C9226BDA0C004EEFA8 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -86,6 +90,8 @@
 				852BC1D0226BDA0D004EEFA8 /* LaunchScreen.storyboard */,
 				852BC1D3226BDA0D004EEFA8 /* Info.plist */,
 				852BC1E8226BDBFE004EEFA8 /* StreamReader.swift */,
+				19774AAC227C2947009935ED /* AudioManager.swift */,
+				193CA808227C573C00D7A409 /* AudioFileStreamCallback.swift */,
 			);
 			path = haudioplayer;
 			sourceTree = "<group>";
@@ -205,8 +211,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				193CA809227C573C00D7A409 /* AudioFileStreamCallback.swift in Sources */,
 				852BC1E9226BDBFE004EEFA8 /* StreamReader.swift in Sources */,
 				852BC1CA226BDA0C004EEFA8 /* ViewController.swift in Sources */,
+				19774AAD227C2947009935ED /* AudioManager.swift in Sources */,
 				852BC1C8226BDA0C004EEFA8 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -372,6 +380,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = AGHA3VWM5L;
 				INFOPLIST_FILE = haudioplayer/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -391,6 +400,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = haudioplayer/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

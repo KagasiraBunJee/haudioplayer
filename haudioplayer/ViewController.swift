@@ -18,14 +18,34 @@ class ViewController: UIViewController {
     ]
     
     var reader = RemoteStreamReader()
+    var audioManager = AudioManager()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        reader.delegate = self
+        audioManager.prepare(for: .mp3)
+    }
+
+    @IBAction func downloadTouched(_ sender: Any) {
         guard let url = URL(string: audioList[0]) else { return }
         reader.startRead(from: url)
     }
+    
+    @IBAction func playTouched(_ sender: Any) {
+        audioManager.play()
+    }
+    
+    @IBAction func pauseTouched(_ sender: Any) {
+        audioManager.stop()
+    }
+}
 
-
+extension ViewController: StreamReaderDelegate {
+    
+    func streamReader(_ reader: StreamReader, didRead data: Data) {
+        audioManager.feed(data: data)
+    }
+    
 }
 

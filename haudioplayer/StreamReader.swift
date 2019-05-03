@@ -9,6 +9,7 @@
 import Foundation
 import AudioToolbox
 import AVFoundation
+import UIKit
 
 @objc enum StreamDataInfoKey: Int {
     case fullDataSize
@@ -29,40 +30,66 @@ protocol StreamReader {
     func startRead(from url: URL)
 }
 
-public class RemoteStreamReader: NSObject, StreamReader, URLSessionDelegate {
+public class RemoteStreamReader: NSObject, StreamReader {
     
-    private lazy var downloadsSession: URLSession = {
-        let configuration = URLSessionConfiguration.background(withIdentifier: "hplayer_bg_task")
-        return URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
+    private lazy var session: URLSession = {
+        let config = URLSessionConfiguration.background(withIdentifier: "some_bg_session")
+        config.isDiscretionary = true
+        config.sessionSendsLaunchEvents = true
+        config.allowsCellularAccess = true
+        return URLSession(configuration: config, delegate: self, delegateQueue: nil)
     }()
     
     private var task: URLSessionDataTask?
+    private var backgroundTask: UIBackgroundTaskIdentifier?
     
-    var delegate: StreamReaderDelegate?
+    weak var delegate: StreamReaderDelegate?
     
     override init() {
         super.init()
     }
     
     func startRead(from url: URL) {
-        let urlRequest = URLRequest(url: url)
-        task = downloadsSession.dataTask(with: urlRequest)
+        var urlRequest = URLRequest(url: url)
+        urlRequest.addValue("1", forHTTPHeaderField: "Icy-MetaData")
+        
+        endBackgroundTask()
+        self.backgroundTask = UIApplication.shared.beginBackgroundTask(expirationHandler: {
+            self.endBackgroundTask()
+        })
+        
+        task = session.dataTask(with: urlRequest)
         task?.resume()
     }
     
-    private func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
-        debugPrint(#function)
-    }
-    
-    private func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
-        delegate?.streamReader?(self, receivedError: error)
+    private func endBackgroundTask() {
+        if let task = self.backgroundTask {
+            UIApplication.shared.endBackgroundTask(task)
+            self.backgroundTask = UIBackgroundTaskIdentifier.invalid
+        }
     }
 }
 
 extension RemoteStreamReader: URLSessionDataDelegate {
     
-    private func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+    @available(iOS 11.0, *)
+    public func urlSession(_ session: URLSession, task: URLSessionTask, willBeginDelayedRequest request: URLRequest, completionHandler: @escaping (URLSession.DelayedRequestDisposition, URLRequest?) -> Void) {
         
+        completionHandler(.continueLoading, request)
+    }
+    
+    public func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+        debugPrint(#function)
+    }
+    
+    public func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
+        debugPrint(error)
+        delegate?.streamReader?(self, receivedError: error)
+    }
+    
+    public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+        
+//        debugPrint(response)
         let info = [
             StreamDataInfoKey.fullDataSize.rawValue: response.expectedContentLength,
             StreamDataInfoKey.mimeType.rawValue: response.mimeType ?? "audio/mpeg"
@@ -72,7 +99,8 @@ extension RemoteStreamReader: URLSessionDataDelegate {
         completionHandler(.allow)
     }
     
-    private func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+    public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        debugPrint("URLSessionDataTask")
         delegate?.streamReader?(self, didRead: data)
     }
     
