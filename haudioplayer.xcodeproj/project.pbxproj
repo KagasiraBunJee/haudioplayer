@@ -42,6 +42,7 @@
 		852BC1DC226BDA0D004EEFA8 /* haudioplayerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = haudioplayerTests.swift; sourceTree = "<group>"; };
 		852BC1DE226BDA0E004EEFA8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		852BC1E8226BDBFE004EEFA8 /* StreamReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamReader.swift; sourceTree = "<group>"; };
+		96523ADB228AC786005384CE /* haudioplayer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = haudioplayer.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,6 +84,7 @@
 		852BC1C6226BDA0C004EEFA8 /* haudioplayer */ = {
 			isa = PBXGroup;
 			children = (
+				96523ADB228AC786005384CE /* haudioplayer.entitlements */,
 				852BC1C7226BDA0C004EEFA8 /* AppDelegate.swift */,
 				852BC1C9226BDA0C004EEFA8 /* ViewController.swift */,
 				852BC1CB226BDA0C004EEFA8 /* Main.storyboard */,
@@ -157,6 +159,9 @@
 						CreatedOnToolsVersion = 10.1;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+							com.apple.Push = {
 								enabled = 1;
 							};
 						};
@@ -377,10 +382,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = haudioplayer/haudioplayer.entitlements;
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = AGHA3VWM5L;
 				INFOPLIST_FILE = haudioplayer/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -397,10 +403,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = haudioplayer/haudioplayer.entitlements;
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = haudioplayer/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
