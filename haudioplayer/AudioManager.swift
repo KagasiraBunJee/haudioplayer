@@ -41,6 +41,9 @@ class AudioManager {
     fileprivate var primed = false
     var buffer: AudioQueueBufferRef?
     
+    //converter
+    var converter: AudioConverterRef?
+    
     //processing tap
     var processingTap: AudioQueueProcessingTapRef?
     
@@ -89,7 +92,20 @@ class AudioManager {
     }
     
     fileprivate func prepareAudioQueue() {
-        let status = AudioQueueNewOutput(&streamDescription, AudioQueue_OutputCallback, unsafeSelf, nil, nil, 0, &audioQueue)
+        
+        var newFormat = AudioStreamBasicDescription()
+        newFormat.mSampleRate       = streamDescription.mSampleRate
+        newFormat.mFormatID         = kAudioFormatLinearPCM
+        newFormat.mFormatFlags      = kAudioFormatFlagsNativeFloatPacked | kAudioFormatFlagIsNonInterleaved
+        newFormat.mFramesPerPacket  = 1
+        newFormat.mChannelsPerFrame = 2
+        newFormat.mBitsPerChannel   = 32
+        newFormat.mBytesPerFrame    = 4
+        newFormat.mBytesPerPacket   = 4
+        var status = AudioConverterNew(&streamDescription, &newFormat, &converter)
+        guard status == noErr else { debugPrint("cant create converter"); return }
+        
+        status = AudioQueueNewOutput(&newFormat, AudioQueue_OutputCallback, unsafeSelf, nil, nil, 0, &audioQueue)
         
         guard status == noErr else {
             debugPrint("error creating audioqueue")
@@ -98,13 +114,13 @@ class AudioManager {
         
         initListeners()
         
-        guard let queue = self.audioQueue else { return }
+        guard let queue = self.audioQueue else { debugPrint("no queue"); return }
         
-        var maxFrames : UInt32 = 0
-        var tapFormat = AudioStreamBasicDescription()
-        AudioQueueProcessingTapNew(queue, { (inUserData, processingTap, inNumberFrames, timeStamp, flags, outNumberFrames, bufferList) in
-           debugPrint("AudioQueueProcessingTapNewCallback")
-        }, unsafeSelf, [AudioQueueProcessingTapFlags.preEffects], &maxFrames, &tapFormat, &processingTap)
+//        var maxFrames : UInt32 = 0
+//        var tapFormat = AudioStreamBasicDescription()
+//        AudioQueueProcessingTapNew(queue, { (inUserData, processingTap, inNumberFrames, timeStamp, flags, outNumberFrames, bufferList) in
+//           debugPrint("AudioQueueProcessingTapNewCallback")
+//        }, unsafeSelf, [AudioQueueProcessingTapFlags.preEffects], &maxFrames, &tapFormat, &processingTap)
         
         _state = .waitForData
     }
@@ -148,6 +164,11 @@ class AudioManager {
         if _state == .waitForPlay && primed {
             play()
         }
+    }
+    
+    func transformInputData(inInputData: UnsafeRawPointer, size: UInt32) {
+        
+        
     }
 }
 
