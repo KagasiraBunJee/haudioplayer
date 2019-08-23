@@ -43,6 +43,7 @@ class AudioManager {
     
     //converter
     var converter: AudioConverterRef?
+    var newFormat = AudioStreamBasicDescription()
     
     //processing tap
     var processingTap: AudioQueueProcessingTapRef?
@@ -93,7 +94,6 @@ class AudioManager {
     
     fileprivate func prepareAudioQueue() {
         
-        var newFormat = AudioStreamBasicDescription()
         newFormat.mSampleRate       = streamDescription.mSampleRate
         newFormat.mFormatID         = kAudioFormatLinearPCM
         newFormat.mFormatFlags      = kAudioFormatFlagsNativeFloatPacked | kAudioFormatFlagIsNonInterleaved
@@ -166,10 +166,22 @@ class AudioManager {
         }
     }
     
-    func transformInputData(inInputData: UnsafeRawPointer, size: UInt32) {
+    func transformInputData(inInputData: UnsafeMutableRawPointer, size: UInt32) {
         
+        var newBuffer = AudioBuffer(mNumberChannels: 2, mDataByteSize: 4096, mData: inInputData)
+        var newBufferList = AudioBufferList(mNumberBuffers: 1, mBuffers: newBuffer)
+        var numberOfPackets: UInt32 = 4096/4
+        var newSize = size
         
+        guard let converter = converter else { debugPrint("no converter"); return }
+        
+        var status = AudioConverterFillComplexBuffer(converter, AudioConverterInputDataProc, unsafeSelf, &newSize, &newBufferList, nil)
     }
+}
+
+fileprivate func AudioConverterInputDataProc(_ converter: AudioConverterRef, _ packetsNum: UnsafeMutablePointer<UInt32>, _ ioData: UnsafeMutablePointer<AudioBufferList>, _ outDataPacketDescription: UnsafeMutablePointer<UnsafeMutablePointer<AudioStreamPacketDescription>?>?, _ clientData: UnsafeMutableRawPointer?) -> OSStatus {
+    
+    return noErr
 }
 
 fileprivate func AudioManager_PropertyListener(_ clientData: UnsafeMutableRawPointer, _ inAudioFileStream: AudioFileStreamID, _ inPropertyID: AudioFileStreamPropertyID, _ ioFlags: UnsafeMutablePointer<AudioFileStreamPropertyFlags>) {
@@ -256,6 +268,8 @@ fileprivate func AudioManager_PacketProcessor(_ clientData: UnsafeMutableRawPoin
     debugPrint("AudioManager_PacketProcessor")
     
     let audioManager = Unmanaged<AudioManager>.fromOpaque(clientData).takeUnretainedValue()
+    
+    audioManager.transformInputData(inInputData: mutablePointer, size: inNumberBytes)
     
     guard let queue = audioManager.audioQueue else { debugPrint("no audio queue"); return }
     var status = AudioQueueAllocateBuffer(queue, inNumberBytes, &audioManager.buffer)
