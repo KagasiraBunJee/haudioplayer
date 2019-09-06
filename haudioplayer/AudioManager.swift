@@ -49,6 +49,7 @@ class AudioManager {
     let convertingGroup = DispatchGroup()
     var blocks: [DispatchWorkItem] = []
     var convertingQueue = DispatchQueue(label: "audioManager.converting")
+    var packetsToConvert: UInt32 = 0
     
     //processing tap
     var processingTap: AudioQueueProcessingTapRef?
@@ -177,47 +178,57 @@ class AudioManager {
         }
     }
     
+    struct AudioBufferPacket {
+        var packetSize: UInt32
+        var mPacketData: UnsafeMutableRawPointer?
+    }
+    
+    func splitPackets() {
+        
+    }
+    
     func processDataForConvert(data: InputDataForConvert) {
         
         guard let converter = converter else { return }
         
-        convertingGroup.enter()
-        let block = DispatchWorkItem(flags: .inheritQoS) { [weak self, convertingGroup = convertingGroup] in
-            var status = noErr
-            
-            var packetData = data
-            var sizeInPackets = data.numPackets
-            var converterDescription = data.packetDescriptions.pointee
-            
-            var outputData = malloc(Int(data.numBytes))
-            memset(outputData, 0, Int(data.numBytes))
-            
-            var audioBufferList = AudioBufferList()
-            audioBufferList.mNumberBuffers = 1
-            audioBufferList.mBuffers = AudioBuffer(mNumberChannels: 2, mDataByteSize: data.numBytes, mData: outputData)
-            
-            debugPrint("AudioConverterFillComplexBuffer start")
-            status = AudioConverterFillComplexBuffer(converter, { (converter, ioNumberDataPackets, ioData, outDataPacketDescription, inUserData) -> OSStatus in
-                debugPrint("AudioConverterFillComplexBuffer callback called")
-                guard let bufferData = inUserData?.assumingMemoryBound(to: InputDataForConvert.self).pointee else { debugPrint("no data"); return OSStatus(-50) }
-                
-                outDataPacketDescription?.pointee = bufferData.packetDescriptions
-                ioData.pointee.mBuffers.mDataByteSize = bufferData.numBytes
-                ioData.pointee.mBuffers.mData = bufferData.mData
-                ioNumberDataPackets.pointee = bufferData.numPackets
-                
-                return noErr
-            }, &packetData, &sizeInPackets, &audioBufferList, &converterDescription)
-            
-            convertingGroup.leave()
-            
-            guard status == noErr else { debugPrint("AudioConverterFillComplexBuffer failed with status \(status)"); return }
-        }
-        convertingQueue.async(execute: block)
+        guard !Thread.isMainThread else { debugPrint("should not be on main thread"); return }
         
-        convertingGroup.notify(queue: DispatchQueue.main) {
-            debugPrint("converting done")
-        }
+        var status = noErr
+        
+        var packetData = data
+        var sizeInPackets = data.numPackets
+        var converterDescription = data.packetDescriptions.pointee
+        
+        var outputData = data.mData
+        memset(outputData, 0, Int(data.numBytes))
+        
+        var audioBufferList = AudioBufferList()
+        audioBufferList.mNumberBuffers = 1
+        audioBufferList.mBuffers = AudioBuffer(mNumberChannels: 2, mDataByteSize: data.numBytes, mData: outputData)
+//        bufferArray.append(audioBufferList)
+        
+        debugPrint("AudioConverterFillComplexBuffer start", data.numBytes)
+        status = AudioConverterFillComplexBuffer(converter, { (converter, ioNumberDataPackets, ioData, outDataPacketDescription, inUserData) -> OSStatus in
+            debugPrint("AudioConverterFillComplexBuffer callback called")
+            guard let bufferData = inUserData?.assumingMemoryBound(to: InputDataForConvert.self).pointee else { debugPrint("no data"); return OSStatus(-50) }
+            
+            if ioNumberDataPackets.pointee > bufferData.numPackets {
+                ioNumberDataPackets.pointee = bufferData.numPackets
+            }
+            
+            if bufferData.manager.packetsToConvert == 0 {
+                return noErr
+            }
+            outDataPacketDescription?.pointee = bufferData.packetDescriptions
+            ioData.pointee.mBuffers.mDataByteSize = bufferData.numBytes
+            ioData.pointee.mBuffers.mData = bufferData.mData
+            
+            bufferData.manager.packetsToConvert -= bufferData.numPackets
+            
+            return noErr
+        }, &packetData, &sizeInPackets, &audioBufferList, &converterDescription)
+        
+        debugPrint(audioBufferList.mBuffers.mDataByteSize, sizeInPackets)
     }
 }
 
@@ -321,6 +332,7 @@ struct InputDataForConvert {
     var numPackets: UInt32
     var mData: UnsafeMutableRawPointer?
     var packetDescriptions: UnsafeMutablePointer<AudioStreamPacketDescription>
+    var manager: AudioManager
 }
 
 fileprivate func AudioManager_PacketProcessor(_ clientData: UnsafeMutableRawPointer, _ inNumberBytes: UInt32, _ inNumberPackets: UInt32, _ inInputData: UnsafeRawPointer, _ inPacketDescriptions: UnsafeMutablePointer<AudioStreamPacketDescription>) {
@@ -338,9 +350,11 @@ fileprivate func AudioManager_PacketProcessor(_ clientData: UnsafeMutableRawPoin
         numBytes: inNumberBytes,
         numPackets: inNumberPackets,
         mData: UnsafeMutableRawPointer(mutating: inInputData),
-        packetDescriptions: inPacketDescriptions
+        packetDescriptions: inPacketDescriptions,
+        manager: audioManager
     )
     
+    audioManager.packetsToConvert = inNumberPackets
     audioManager.processDataForConvert(data: bufferData)
     return
     
